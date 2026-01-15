@@ -19,47 +19,99 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
-            @* 示例数据循环 *@
-            @for (int i = 0; i < 5; i++)
-            {
-                <tr>
-                    <td>@i</td>
-                    <td>Item @i</td>
-                    <td>
-                        <button class="layui-btn layui-btn-normal" onclick="editItem(@i)">Edit</button>
-                        <button class="layui-btn layui-btn-danger" onclick="deleteItem(@i)">Delete</button>
-                    </td>
-                </tr>
-            }
+        <tbody id="data-table-body">
+            @* 数据将通过 JavaScript 动态加载 *@
         </tbody>
     </table>
 
     <button class="layui-btn" onclick="createItem()">Create New</button>
 
     <script src="https://cdn.jsdelivr.net/npm/layui@2.7.6/dist/layui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script>
         layui.use(['layer'], function () {
             var layer = layui.layer;
 
+            function loadData() {
+                $.ajax({
+                    url: '/Home/GetAll',
+                    method: 'GET',
+                    success: function (response) {
+                        var tbody = $('#data-table-body');
+                        tbody.empty();
+                        response.forEach(function (item) {
+                            tbody.append(`
+                                <tr>
+                                    <td>${item.id}</td>
+                                    <td>${item.name}</td>
+                                    <td>
+                                        <button class="layui-btn layui-btn-normal" onclick="editItem(${item.id})">Edit</button>
+                                        <button class="layui-btn layui-btn-danger" onclick="deleteItem(${item.id})">Delete</button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    },
+                    error: function () {
+                        alert('Failed to load data.');
+                    }
+                });
+            }
+
             function createItem() {
                 layer.prompt({ title: 'Enter item name', formType: 0 }, function (value, index) {
                     layer.close(index);
-                    alert('Create new item: ' + value);
+                    $.ajax({
+                        url: '/Home/Create',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(value),
+                        success: function () {
+                            alert('Item created successfully.');
+                            loadData();
+                        },
+                        error: function () {
+                            alert('Failed to create item.');
+                        }
+                    });
                 });
             }
 
             function editItem(id) {
                 layer.prompt({ title: 'Edit item ' + id, formType: 0 }, function (value, index) {
                     layer.close(index);
-                    alert('Edit item ' + id + ' to: ' + value);
+                    $.ajax({
+                        url: '/Home/Edit',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ Id: id, Name: value }),
+                        success: function () {
+                            alert('Item updated successfully.');
+                            loadData();
+                        },
+                        error: function () {
+                            alert('Failed to update item.');
+                        }
+                    });
                 });
             }
 
             function deleteItem(id) {
                 layer.confirm('Are you sure you want to delete item ' + id + '?', function (index) {
                     layer.close(index);
-                    alert('Delete item ' + id);
+                    $.ajax({
+                        url: '/Home/Delete',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(id),
+                        success: function () {
+                            alert('Item deleted successfully.');
+                            loadData();
+                        },
+                        error: function () {
+                            alert('Failed to delete item.');
+                        }
+                    });
                 });
             }
 
@@ -67,6 +119,9 @@
             window.createItem = createItem;
             window.editItem = editItem;
             window.deleteItem = deleteItem;
+
+            // Initial data load
+            loadData();
         });
     </script>
 </body>

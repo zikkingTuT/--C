@@ -28,7 +28,7 @@ public class HomeController : Controller
     [HttpGet]
     public JsonResult GetAll()
     {
-        return Json(_data);
+        return Json(_data.Select(d => new { id = d.Id, name = d.Name }));
     }
 
     // 创建新数据
@@ -36,19 +36,20 @@ public class HomeController : Controller
     public JsonResult Create([FromBody] string name)
     {
         var newId = _data.Any() ? _data.Max(d => d.Id) + 1 : 1;
-        _data.Add((newId, name));
-        return Json(new { Success = true, Id = newId });
+        var newItem = (newId, name);
+        _data.Add(newItem);
+        return Json(newItem);
     }
 
     // 编辑数据
     [HttpPost]
-    public JsonResult Edit([FromBody] (int Id, string Name) item)
+    public JsonResult Edit([FromBody] ItemModel item)
     {
         var existingItem = _data.FirstOrDefault(d => d.Id == item.Id);
         if (existingItem != default)
         {
             _data.Remove(existingItem);
-            _data.Add(item);
+            _data.Add((item.Id, item.Name));
             return Json(new { Success = true });
         }
         return Json(new { Success = false, Message = "Item not found" });
@@ -56,12 +57,17 @@ public class HomeController : Controller
 
     // 删除数据
     [HttpPost]
-    public JsonResult Delete([FromBody] int id)
+    public JsonResult Delete([FromBody] ItemModel item)
     {
-        var item = _data.FirstOrDefault(d => d.Id == id);
-        if (item != default)
+        if (item == null || _data == null)
         {
-            _data.Remove(item);
+            return Json(new { Success = false, Message = "Invalid request or data not initialized" });
+        }
+
+        var existingItem = _data.FirstOrDefault(d => d.Id == item.Id);
+        if (existingItem != default)
+        {
+            _data.Remove(existingItem);
             return Json(new { Success = true });
         }
         return Json(new { Success = false, Message = "Item not found" });
