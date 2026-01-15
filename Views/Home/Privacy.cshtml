@@ -1,6 +1,73 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Data Management";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this 啊啊大 to detail yourasdada1 site's privacy policy.</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.7.6/dist/css/layui.css">
+</head>
+<body>
+    <h1>@ViewData["Title"]</h1>
+
+    <table class="layui-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* 示例数据循环 *@
+            @for (int i = 0; i < 5; i++)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td>Item @i</td>
+                    <td>
+                        <button class="layui-btn layui-btn-normal" onclick="editItem(@i)">Edit</button>
+                        <button class="layui-btn layui-btn-danger" onclick="deleteItem(@i)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="layui-btn" onclick="createItem()">Create New</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/layui@2.7.6/dist/layui.js"></script>
+    <script>
+        layui.use(['layer'], function () {
+            var layer = layui.layer;
+
+            function createItem() {
+                layer.prompt({ title: 'Enter item name', formType: 0 }, function (value, index) {
+                    layer.close(index);
+                    alert('Create new item: ' + value);
+                });
+            }
+
+            function editItem(id) {
+                layer.prompt({ title: 'Edit item ' + id, formType: 0 }, function (value, index) {
+                    layer.close(index);
+                    alert('Edit item ' + id + ' to: ' + value);
+                });
+            }
+
+            function deleteItem(id) {
+                layer.confirm('Are you sure you want to delete item ' + id + '?', function (index) {
+                    layer.close(index);
+                    alert('Delete item ' + id);
+                });
+            }
+
+            // Expose functions globally
+            window.createItem = createItem;
+            window.editItem = editItem;
+            window.deleteItem = deleteItem;
+        });
+    </script>
+</body>
+</html>

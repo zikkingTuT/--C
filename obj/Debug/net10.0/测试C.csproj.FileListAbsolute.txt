@@ -95,3 +95,4 @@
 /Users/zhangkaiyue/测试C/测试C/obj/Debug/net10.0/测试C.pdb
 /Users/zhangkaiyue/测试C/测试C/obj/Debug/net10.0/测试C.genruntimeconfig.cache
 /Users/zhangkaiyue/测试C/测试C/obj/Debug/net10.0/ref/测试C.dll
+/Users/zhangkaiyue/测试C/测试C/obj/Debug/net10.0/测试C.sourcelink.json
